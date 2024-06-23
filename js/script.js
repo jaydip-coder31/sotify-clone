@@ -18,7 +18,7 @@ function secondsToMinutesSeconds(seconds) {
 }
 
 async function getsongs(folder) {
-  currfolder=folder;
+  currfolder = folder;
   let a = await fetch(`/${folder}/`);
   let respones = await a.text();
 
@@ -33,12 +33,12 @@ async function getsongs(folder) {
       songs.push(element.href.split(`/${folder}/`)[1]);
     }
   }
-  
+
   // show all the songs in the playliat
   let songUL = document
     .querySelector(".songlist")
     .getElementsByTagName("ul")[0];
-    songUL.innerHTML= ""
+  songUL.innerHTML = "";
   for (const song of songs) {
     songUL.innerHTML =
       songUL.innerHTML +
@@ -59,12 +59,11 @@ async function getsongs(folder) {
   Array.from(
     document.querySelector(".songlist").getElementsByTagName("li")
   ).forEach((e) => {
-    e.addEventListener("click", element => {
-    
+    e.addEventListener("click", (element) => {
       playmusic(e.querySelector(".info").firstElementChild.innerHTML.trim());
     });
   });
-  return songs
+  return songs;
 }
 const playmusic = (track, pause = false) => {
   // let audio = new Audio("/songs/" + track)
@@ -77,30 +76,31 @@ const playmusic = (track, pause = false) => {
   document.querySelector(".songinfo").innerHTML = track;
   document.querySelector(".songtime").innerHTML = "00:00 / 00:00";
 };
-async function displayalubum(){
+async function displayalubum() {
   let a = await fetch(`/songs/`);
-  
+
   let respones = await a.text();
   let div = document.createElement("div");
   div.innerHTML = respones;
- 
-  let anchor = div.getElementsByTagName("a")
-  let cardContainer = document.querySelector(".cardConainer")
-  
-  let array = Array.from(anchor)
+
+  let anchor = div.getElementsByTagName("a");
+  let cardContainer = document.querySelector(".cardConainer");
+
+  let array = Array.from(anchor);
   for (let index = 0; index < array.length; index++) {
     const e = array[index];
-    
-    
-    if(e.href.includes("/songs/")&& !e.href.includes(".htaccess")) {
-       let folder = e.href.split("/").slice(-2)[1]
-      
+
+    if (e.href.includes("/songs/")) {
+      let folder = e.href.split("/").slice(-2)[1];
+
       // get the metadata  of the folder
-      let a = await fetch(`/songs/${folder}/info.json`)
-       let respones = await a.json();
-       console.log(respones)
-      
-       cardContainer.innerHTML = cardContainer.innerHTML + ` <div data-folder="${folder}" class="card">
+      let a = await fetch(`/songs/${folder}/info.json`);
+      let respones = await a.json();
+      console.log(respones);
+
+      cardContainer.innerHTML =
+        cardContainer.innerHTML +
+        ` <div data-folder="${folder}" class="card">
       <div class="play">
         <svg
           width="16"
@@ -121,32 +121,27 @@ async function displayalubum(){
       <img src="/songs/${folder}/cover3.jpg" alt="">
       <h2>${respones.title}</h2>
       <p>${respones.description}</p>
-    </div>`
-    
-    
-  
+    </div>`;
     }
   }
   //load the playlist whnvwer card ia clicked
-  Array.from(document.getElementsByClassName("card")).forEach(e=>{
-    e.addEventListener("click", async item=>{
-      songs = await getsongs(`songs/${ item.currentTarget.dataset.folder}`);
-      playmusic(songs[0])
-
-      
-    })
-  })
+  Array.from(document.getElementsByClassName("card")).forEach((e) => {
+    e.addEventListener("click", async (item) => {
+      songs = await getsongs(`songs/${item.currentTarget.dataset.folder}`);
+      playmusic(songs[0]);
+    });
+  });
 }
 async function main() {
   //get the list of all songs
-  await getsongs("songs/ncs/info.json");
+  await getsongs("songs/ncs");
   playmusic(songs[0], true);
 
   //diplay all the alubum on the page
-  await displayalubum()
+  await displayalubum();
 
   //song all the song in the playlist
-  
+
   //attach an evnt listner to play ,next and prevoius
   play.addEventListener("click", () => {
     if (cuurentsong.paused) {
@@ -171,7 +166,7 @@ async function main() {
     let precent = (e.offsetX / e.target.getBoundingClientRect().width) * 100;
     document.querySelector(".circle").style.left = precent + "%";
 
-    cuurentsong.currentTime=((cuurentsong.duration) * precent) / 100;
+    cuurentsong.currentTime = (cuurentsong.duration * precent) / 100;
   });
   //add evnt listner for hamburger
   document.querySelector(".hamburger").addEventListener("click", () => {
@@ -201,35 +196,31 @@ async function main() {
     .querySelector(".range")
     .getElementsByTagName("input")[0]
     .addEventListener("change", (e) => {
-      e, e.target,e.target.value
-      cuurentsong.volume= parseInt(e.target.value)/100
-      if(cuurentsong.volume >0){
-        document.querySelector(".volume>img").src= document.querySelector(".volume>img").src.replace("mute.svg","volume.svg")
-
+      e, e.target, e.target.value;
+      cuurentsong.volume = parseInt(e.target.value) / 100;
+      if (cuurentsong.volume > 0) {
+        document.querySelector(".volume>img").src = document
+          .querySelector(".volume>img")
+          .src.replace("mute.svg", "volume.svg");
       }
-
-
     });
-    //add evenlisner for the mute the track
-    document.querySelector(".volume>img").addEventListener("click",e=>{
-      console.log("changing",e.target.src)
-      if(e.target.src.includes( "img/volume.svg")){
-        e.target.src=e.target.src.replace("img/volume.svg", "img/mute.svg")
-        cuurentsong.volume = 0;
-        document
-    .querySelector(".range")
-    .getElementsByTagName("input")[0].value=0;
-      
-      }
-      else{
-        e.target.src=e.target.src.replace("img/mute.svg","img/volume.svg")
-        cuurentsong.volume=.10;
-        document
-    .querySelector(".range")
-    .getElementsByTagName("input")[0].value=10;
-      }
-    })
-    
+  //add evenlisner for the mute the track
+  document.querySelector(".volume>img").addEventListener("click", (e) => {
+    console.log("changing", e.target.src);
+    if (e.target.src.includes("img/volume.svg")) {
+      e.target.src = e.target.src.replace("img/volume.svg", "img/mute.svg");
+      cuurentsong.volume = 0;
+      document
+        .querySelector(".range")
+        .getElementsByTagName("input")[0].value = 0;
+    } else {
+      e.target.src = e.target.src.replace("img/mute.svg", "img/volume.svg");
+      cuurentsong.volume = 0.1;
+      document
+        .querySelector(".range")
+        .getElementsByTagName("input")[0].value = 10;
+    }
+  });
 }
 
 main();
